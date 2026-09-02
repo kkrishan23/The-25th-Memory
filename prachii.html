@@ -1,0 +1,504 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f8dce5">
+<title>The 25th Memory — Prachi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  --ink:#17121a; --paper:#fbf7f2; --rose:#c9858f; --wine:#6d3447;
+  --gold:#c7a36a; --muted:#776d76; --white:#fffdfb;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",system-ui,sans-serif;overflow-x:hidden}
+body.locked{overflow:hidden}
+h1,h2,h3,.serif{font-family:"Cormorant Garamond",Georgia,serif}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+
+#loader{
+  position:fixed;inset:0;z-index:9999;background:#140f19;color:#fff;
+  display:grid;place-items:center;transition:opacity .9s ease,visibility .9s ease
+}
+#loader.hide{opacity:0;visibility:hidden}
+.loader-inner{text-align:center;padding:24px}
+.loader-kicker{letter-spacing:.28em;text-transform:uppercase;font-size:11px;opacity:.65}
+.loader-title{font:600 clamp(48px,10vw,100px)/.8 "Cormorant Garamond",serif;margin:22px 0 10px}
+.loader-line{width:110px;height:1px;background:var(--gold);margin:24px auto}
+.loader-small{font-size:12px;opacity:.6}
+
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--gold);width:0;z-index:1000}
+
+.hero{
+  min-height:100svh;position:relative;display:grid;place-items:center;
+  color:#fff;overflow:hidden;background:#20161d;
+}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(18,10,16,.88),rgba(18,10,16,.38),rgba(18,10,16,.72)),
+             url("photos/memory-01.jpg") center/cover;
+  filter:saturate(.85);transform:scale(1.03)
+}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,transparent 0 24%,rgba(0,0,0,.42) 100%)}
+.hero-content{position:relative;z-index:2;text-align:center;max-width:950px;padding:30px}
+.eyebrow{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#ead7b0}
+.hero h1{font-size:clamp(68px,13vw,170px);line-height:.72;margin:28px 0 20px;font-weight:500;letter-spacing:-.045em}
+.hero h1 span{display:block;font-size:.42em;line-height:1.4;letter-spacing:.12em;text-transform:uppercase;font-family:"DM Sans",sans-serif;font-weight:500}
+.hero-sub{font:400 clamp(20px,3vw,31px)/1.25 "Cormorant Garamond",serif;max-width:680px;margin:0 auto;color:#f7eee8}
+.date{margin-top:30px;font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.8}
+.open-btn{
+  margin-top:40px;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.08);
+  color:#fff;padding:15px 25px;border-radius:999px;cursor:pointer;backdrop-filter:blur(12px);
+  transition:.3s;letter-spacing:.08em;text-transform:uppercase;font-size:11px
+}
+.open-btn:hover{background:#fff;color:#17121a;transform:translateY(-2px)}
+.scroll{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.55}
+
+section{padding:110px 7vw;position:relative}
+.container{max-width:1180px;margin:auto}
+.section-kicker{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--rose);font-weight:700}
+.section-title{font-size:clamp(50px,7vw,90px);line-height:.85;margin:18px 0 25px;font-weight:500;letter-spacing:-.03em}
+.section-intro{max-width:650px;color:var(--muted);font-size:16px;line-height:1.8}
+
+.letter{background:#fff}
+.letter-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start}
+.letter-card{background:var(--paper);padding:clamp(30px,5vw,70px);border:1px solid #eadfd7;box-shadow:0 30px 70px rgba(60,34,43,.08)}
+.letter-card p{font:400 24px/1.55 "Cormorant Garamond",serif;margin:0 0 22px}
+.dropcap:first-letter{font-size:3.4em;float:left;line-height:.75;padding:.08em .1em 0 0;color:var(--wine)}
+.signature{font:600 27px "Cormorant Garamond",serif;color:var(--wine);margin-top:32px}
+
+.quote{
+  background:var(--ink);color:#fff;min-height:65vh;display:grid;place-items:center;text-align:center;
+  overflow:hidden
+}
+.quote .container{max-width:950px}
+.quote-mark{font:100px/0 "Cormorant Garamond",serif;color:var(--gold);opacity:.75}
+.bigquote{font:500 clamp(45px,7vw,90px)/.98 "Cormorant Garamond",serif;margin:40px 0}
+.bigquote em{color:#e2b8be;font-style:normal}
+.quote-note{font-size:11px;letter-spacing:.25em;text-transform:uppercase;opacity:.55}
+
+.gallery{background:#f3ece6}
+.gallery-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:45px}
+.gallery-grid{columns:3 260px;column-gap:20px}
+.polaroid{break-inside:avoid;margin:0 0 20px;background:#fff;padding:10px 10px 18px;box-shadow:0 18px 40px rgba(53,29,37,.1);transform:rotate(var(--r));transition:transform .5s,box-shadow .5s}
+.polaroid:hover{transform:rotate(0) translateY(-8px);box-shadow:0 28px 55px rgba(53,29,37,.16)}
+.polaroid img{width:100%;display:block;aspect-ratio:auto;object-fit:cover}
+.polaroid figcaption{font:500 18px "Cormorant Garamond",serif;color:#57444d;padding:13px 7px 0}
+
+.reasons{background:#fff}
+.reason-intro{text-align:center;max-width:720px;margin:0 auto 55px}
+.reason-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#ded3cc;border:1px solid #ded3cc}
+.reason{background:#fff;padding:27px 18px;min-height:125px;transition:.3s}
+.reason:hover{background:#faf3ef}
+.reason-num{font-size:10px;color:var(--rose);letter-spacing:.18em}
+.reason p{font:500 22px/1.05 "Cormorant Garamond",serif;margin:14px 0 0}
+
+.countdown{background:linear-gradient(135deg,#24151e,#4a2735);color:#fff;text-align:center}
+.countdown .section-kicker{color:#e2b8be}
+.countdown-title{font-size:clamp(55px,8vw,100px);margin:15px 0 45px;font-weight:500}
+.timer{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.timebox{min-width:115px;padding:20px 18px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);backdrop-filter:blur(10px)}
+.timebox strong{display:block;font:600 52px/.9 "Cormorant Garamond",serif;color:#f4d9dc}
+.timebox span{display:block;margin-top:10px;font-size:9px;letter-spacing:.2em;text-transform:uppercase;opacity:.55}
+.after-date{display:none;margin-top:25px;font:500 24px "Cormorant Garamond",serif;color:#f4d9dc}
+
+.wishes{background:#fbf7f2}
+.wishes-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+.wish-list{list-style:none;padding:0;margin:0}
+.wish-list li{padding:18px 0;border-bottom:1px solid #dfd4ce;font:500 25px "Cormorant Garamond",serif}
+.wish-list li::before{content:"✦";color:var(--gold);font-size:12px;margin-right:15px;vertical-align:middle}
+.stamp{width:min(320px,70vw);aspect-ratio:1;border:1px solid #d7c3ae;border-radius:50%;display:grid;place-items:center;margin:auto;position:relative;transform:rotate(-8deg)}
+.stamp::before{content:"";position:absolute;inset:14px;border:1px dashed #d7c3ae;border-radius:50%}
+.stamp-text{text-align:center;z-index:1}
+.stamp-text b{display:block;font:600 74px/.8 "Cormorant Garamond",serif;color:var(--wine)}
+.stamp-text small{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted)}
+
+.final{min-height:100svh;background:#140f19;color:#fff;display:grid;place-items:center;text-align:center;overflow:hidden}
+.final .container{max-width:900px}
+.final h2{font-size:clamp(65px,12vw,150px);line-height:.75;font-weight:500;margin:20px 0 35px}
+.final h2 span{display:block;font-size:.33em;letter-spacing:.22em;text-transform:uppercase;line-height:1.5;font-family:"DM Sans",sans-serif;color:#e2b8be}
+.final p{font:400 clamp(21px,3vw,30px)/1.35 "Cormorant Garamond",serif;color:#eadfd9;max-width:680px;margin:auto}
+.final-sign{margin-top:45px;color:#d8b16f;font:500 28px "Cormorant Garamond",serif}
+.heart{display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{50%{transform:scale(1.18)}}
+
+.reveal{opacity:0;transform:translateY(35px);transition:opacity .8s ease,transform .8s ease}
+.reveal.show{opacity:1;transform:none}
+
+.floating{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+.petal{position:absolute;top:-30px;font-size:16px;animation:fall linear forwards;opacity:.75}
+@keyframes fall{to{transform:translate3d(var(--x),110vh,0) rotate(500deg);opacity:0}}
+
+@media(max-width:800px){
+  section{padding:80px 6vw}
+  .letter-grid,.wishes-grid{grid-template-columns:1fr;gap:35px}
+  .reason-grid{grid-template-columns:repeat(2,1fr)}
+  .gallery-head{display:block}
+  .gallery-head .section-intro{margin-top:20px}
+  .hero h1{font-size:22vw}
+  .timer{gap:8px}
+  .timebox{min-width:78px;padding:15px 8px}
+  .timebox strong{font-size:39px}
+}
+@media(max-width:450px){
+  .reason-grid{grid-template-columns:1fr 1fr}
+  .reason{min-height:115px;padding:20px 13px}
+  .reason p{font-size:19px}
+}
+
+/* ===== PASTEL PINK MEMORY EDITION ===== */
+:root{
+  --ink:#4b3340; --paper:#fff8fa; --rose:#c97f98; --wine:#8d4e68;
+  --gold:#c9a06b; --muted:#806d77; --white:#fffdfd;
+  --blush:#f8dce5; --pink:#f3c9d7; --petal:#ffeaf0;
+}
+body{
+  background:
+    radial-gradient(circle at 8% 12%,rgba(255,255,255,.85) 0 70px,transparent 71px),
+    radial-gradient(circle at 92% 38%,rgba(255,255,255,.55) 0 90px,transparent 91px),
+    linear-gradient(135deg,#fff8fa 0%,#fde8ef 48%,#fff6f8 100%);
+  color:var(--ink);
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.32;
+  background-image:radial-gradient(#d99aae 1px,transparent 1px);
+  background-size:22px 22px;
+  mask-image:linear-gradient(to bottom,transparent,black 12%,black 88%,transparent);
+}
+#loader{
+  background:
+    radial-gradient(circle at 50% 35%,rgba(255,255,255,.28),transparent 32%),
+    linear-gradient(135deg,#b96f89,#d99aad 52%,#f1c8d5);
+}
+#loader::before,#loader::after{
+  content:"♡";position:absolute;color:rgba(255,255,255,.24);font-size:180px;line-height:1;
+}
+#loader::before{left:7%;top:12%;transform:rotate(-18deg)}
+#loader::after{right:7%;bottom:10%;transform:rotate(16deg)}
+.hero{
+  background:linear-gradient(135deg,#f1c4d3,#d88fa8);color:#fff;
+  isolation:isolate;
+}
+.hero::before{
+  background:
+    linear-gradient(90deg,rgba(105,53,73,.48),rgba(173,92,118,.18),rgba(92,45,64,.42)),
+    url("photos/memory-01.jpg") center/cover;
+  filter:saturate(.72) brightness(1.05);transform:scale(1.04);
+}
+.hero::after{
+  background:
+    radial-gradient(circle at 50% 40%,transparent 0 28%,rgba(99,48,68,.24) 100%),
+    linear-gradient(135deg,rgba(255,215,226,.16),transparent 55%);
+}
+.hero-content::before{
+  content:"♡   ✦   ♡";display:block;margin-bottom:6px;color:#ffeef3;
+  font-size:18px;letter-spacing:.55em;opacity:.9;
+}
+.eyebrow{color:#ffeef3}
+.open-btn{border-color:rgba(255,255,255,.65);background:rgba(255,240,246,.16)}
+.open-btn:hover{background:#fff;color:#8d4e68}
+section{overflow:hidden}
+section::before,section::after{pointer-events:none;position:absolute;z-index:0}
+section>.container{position:relative;z-index:1}
+.letter{
+  background:
+    radial-gradient(circle at 4% 20%,rgba(238,166,190,.22) 0 90px,transparent 91px),
+    linear-gradient(180deg,#fff9fb,#fff1f5);
+}
+.letter::before{
+  content:"✦";top:38px;right:8%;font-size:120px;color:#efb8c9;opacity:.22;transform:rotate(12deg)
+}
+.letter::after{
+  content:"♡";bottom:45px;left:4%;font-size:110px;color:#d98da7;opacity:.12;transform:rotate(-15deg)
+}
+.letter-card{
+  background:rgba(255,255,255,.78);border:1px solid #f0cdd8;
+  box-shadow:0 25px 70px rgba(150,76,101,.12);border-radius:4px;
+  position:relative;
+}
+.letter-card::before{
+  content:"MEMORY NOTE";position:absolute;top:18px;right:22px;font-size:8px;letter-spacing:.24em;color:#c88ba0;
+}
+.section-kicker{color:var(--rose)}
+.section-title{color:#553a47}
+.quote{
+  background:
+    radial-gradient(circle at 15% 25%,rgba(255,255,255,.22) 0 80px,transparent 81px),
+    radial-gradient(circle at 85% 75%,rgba(255,255,255,.16) 0 110px,transparent 111px),
+    linear-gradient(135deg,#c9829a,#a95f7c);
+  position:relative;
+}
+.quote::before{content:"♡";top:7%;left:6%;font-size:150px;color:rgba(255,255,255,.13);transform:rotate(-18deg)}
+.quote::after{content:"✦";right:8%;bottom:7%;font-size:130px;color:rgba(255,240,246,.14);transform:rotate(20deg)}
+.bigquote em{color:#ffe1ea}
+.gallery{
+  background:
+    linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.5)),
+    repeating-linear-gradient(0deg,transparent 0 30px,rgba(215,143,166,.055) 31px 32px),
+    #f9dfe7;
+}
+.gallery::before{content:"♡  ✦  ♡";top:34px;right:7%;font-size:70px;letter-spacing:18px;color:#d68ca4;opacity:.16}
+.polaroid{
+  border:1px solid #f0d0da;box-shadow:0 18px 40px rgba(127,65,87,.14);border-radius:2px;
+}
+.polaroid::before{
+  content:"";display:block;position:absolute;top:-13px;left:50%;width:72px;height:25px;
+  background:rgba(245,206,218,.78);transform:translateX(-50%) rotate(-2deg);box-shadow:0 2px 8px rgba(100,50,70,.08);
+}
+.polaroid{position:relative}
+.polaroid figcaption{color:#654653}
+.reasons{
+  background:linear-gradient(180deg,#fff9fb,#fdebf1);
+}
+.reason-grid{background:#edc7d3;border-color:#edc7d3;border-radius:18px;overflow:hidden}
+.reason{background:rgba(255,255,255,.72)}
+.reason:hover{background:#fff0f5;transform:translateY(-2px)}
+.countdown{
+  background:
+    radial-gradient(circle at 50% 0,rgba(255,255,255,.25),transparent 40%),
+    linear-gradient(135deg,#c77e98,#a75d7a);
+}
+.countdown .section-kicker{color:#ffe6ed}
+.timebox{border-color:rgba(255,255,255,.35);background:rgba(255,245,249,.13);border-radius:18px;box-shadow:0 12px 30px rgba(92,42,63,.12)}
+.wishes{background:linear-gradient(135deg,#fff8fa,#f8dce5)}
+.wishes::before{content:"✦";top:10%;left:6%;font-size:100px;color:#d98ea7;opacity:.15}
+.wish-list li{border-bottom-color:#e9c5d1}
+.stamp{border-color:#d99aae;background:rgba(255,255,255,.22);box-shadow:0 20px 50px rgba(140,70,94,.09)}
+.stamp::before{border-color:#d99aae}
+.final{
+  background:
+    radial-gradient(circle at 20% 20%,rgba(255,255,255,.22) 0 90px,transparent 91px),
+    radial-gradient(circle at 80% 80%,rgba(255,255,255,.16) 0 130px,transparent 131px),
+    linear-gradient(135deg,#b96f89,#8f4e69);
+}
+.final::before{content:"♡";top:8%;right:8%;font-size:160px;color:rgba(255,255,255,.11);transform:rotate(15deg)}
+.final::after{content:"✦";bottom:10%;left:8%;font-size:120px;color:rgba(255,240,246,.12);transform:rotate(-20deg)}
+.final h2 span{color:#ffe1ea}
+.final-sign{color:#ffe0a9}
+#progress{background:linear-gradient(90deg,#c97f98,#e9afc2,#c9a06b)}
+.petal{color:#d77f9c;text-shadow:0 2px 8px rgba(130,60,85,.1)}
+
+</style>
+</head>
+<body class="locked">
+
+<div id="loader">
+  <div class="loader-inner">
+    <div class="loader-kicker">A little something made for Prachi</div>
+    <div class="loader-title">25</div>
+    <div class="loader-line"></div>
+    <div class="loader-small">Preparing the memories…</div>
+  </div>
+</div>
+
+<div id="progress"></div>
+<div class="floating" id="floating"></div>
+
+<header class="hero" id="top">
+  <div class="hero-content reveal">
+    <div class="eyebrow">19 • 09 • 2026</div>
+    <h1><span>Welcome to</span>The 25th Memory</h1>
+    <p class="hero-sub">A little corner of the internet made for one very special person — <strong>Prachi</strong>.</p>
+    <div class="date">Twenty-five looks good on you.</div>
+    <button class="open-btn" onclick="document.querySelector('#story').scrollIntoView({behavior:'smooth'})">Open the memory ✦</button>
+  </div>
+  <div class="scroll">scroll to begin ↓</div>
+</header>
+
+<main>
+<section class="letter" id="story">
+  <div class="container letter-grid">
+    <div class="reveal">
+      <div class="section-kicker">A note before the memories</div>
+      <h2 class="section-title">Dear<br>Prachi,</h2>
+      <p class="section-intro">Some people are called friends. Some become family. And then there are those rare people who quietly become both.</p>
+    </div>
+    <article class="letter-card reveal">
+      <p class="dropcap">You are not just someone I happen to know. Somewhere between the laughter, the nonsense, the random conversations, the shared moments and all the little things that never make it into photographs, you became family.</p>
+      <p>We've had moments that made absolutely no sense, memories that probably shouldn't be explained to anyone else, and enough reasons to annoy each other for a lifetime. 😂</p>
+      <p>But underneath all of that is something simple: <strong>I'm genuinely grateful that life gave me a friend who feels like a sister.</strong></p>
+      <p>So this little website is not meant to be perfect. It's meant to be ours — a tiny collection of moments, smiles and words that say what photographs sometimes cannot.</p>
+      <div class="signature">Happy 25th, Birthday Prachi. ❤️</div>
+    </article>
+  </div>
+</section>
+
+<section class="quote">
+  <div class="container reveal">
+    <div class="quote-mark">“</div>
+    <div class="bigquote">Not exactly siblings.<br>Not just friends.<br><em>Somewhere between the two… we became family.</em></div>
+    <div class="quote-note">The kind of friendship you don't have to explain</div>
+  </div>
+</section>
+
+<section class="gallery">
+  <div class="container">
+    <div class="gallery-head reveal">
+      <div>
+        <div class="section-kicker">The photographs</div>
+        <h2 class="section-title">Moments<br>worth keeping.</h2>
+      </div>
+      <p class="section-intro">Every picture holds a version of a moment that once happened. Together, they become a little piece of the story.</p>
+    </div>
+    <div class="gallery-grid">
+      <figure class="polaroid reveal" style="--r:-1.2deg"><img src="photos/memory-01.jpg" alt="Memory 01"><figcaption>Some memories deserve a frame.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:1deg"><img src="photos/memory-02.jpg" alt="Memory 02"><figcaption>The people who make ordinary days better.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:-.6deg"><img src="photos/memory-03.jpg" alt="Memory 03"><figcaption>A moment, a smile, a story.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:1.4deg"><img src="photos/memory-04.jpg" alt="Memory 04"><figcaption>Proof that we actually went places. 😂</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:-1deg"><img src="photos/memory-05.jpg" alt="Memory 05"><figcaption>Good company makes every memory warmer.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:.8deg"><img src="photos/memory-06.jpg" alt="Memory 06"><figcaption>The kind of smile you remember.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:-1.5deg"><img src="photos/memory-07.jpg" alt="Memory 07"><figcaption>One more for the memory box.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:.7deg"><img src="photos/memory-08.jpg" alt="Memory 08"><figcaption>Because apparently one picture is never enough.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:-.8deg"><img src="photos/memory-09.jpg" alt="Memory 09"><figcaption>A little chaos. A lot of happiness.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:1.1deg"><img src="photos/memory-10.jpg" alt="Memory 10"><figcaption>Somewhere between then and now.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:-1.1deg"><img src="photos/memory-11.jpg" alt="Memory 11"><figcaption>Keep this one close.</figcaption></figure>
+      <figure class="polaroid reveal" style="--r:.9deg"><img src="photos/memory-12.jpg" alt="Memory 12"><figcaption>And this story keeps going…</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="reasons">
+  <div class="container">
+    <div class="reason-intro reveal">
+      <div class="section-kicker">A very incomplete list</div>
+      <h2 class="section-title">25 little<br>things.</h2>
+      <p class="section-intro" style="margin:auto">Twenty-five reasons to celebrate you. Some are serious. Some are silly. All of them are here because you're you.</p>
+    </div>
+    <div class="reason-grid">
+      <div class="reason reveal"><div class="reason-num">01</div><p>You make ordinary days memorable.</p></div>
+      <div class="reason reveal"><div class="reason-num">02</div><p>You somehow make people feel at home.</p></div>
+      <div class="reason reveal"><div class="reason-num">03</div><p>Your laugh is contagious.</p></div>
+      <div class="reason reveal"><div class="reason-num">04</div><p>You care more than you admit.</p></div>
+      <div class="reason reveal"><div class="reason-num">05</div><p>You are effortlessly you.</p></div>
+      <div class="reason reveal"><div class="reason-num">06</div><p>You make the boring stuff fun.</p></div>
+      <div class="reason reveal"><div class="reason-num">07</div><p>You deserve the good things.</p></div>
+      <div class="reason reveal"><div class="reason-num">08</div><p>You have excellent chaos energy. 😂</p></div>
+      <div class="reason reveal"><div class="reason-num">09</div><p>You make friendship feel easy.</p></div>
+      <div class="reason reveal"><div class="reason-num">10</div><p>You are impossible to replace.</p></div>
+      <div class="reason reveal"><div class="reason-num">11</div><p>You listen, even when it's nonsense.</p></div>
+      <div class="reason reveal"><div class="reason-num">12</div><p>You bring warmth wherever you go.</p></div>
+      <div class="reason reveal"><div class="reason-num">13</div><p>You are stronger than you think.</p></div>
+      <div class="reason reveal"><div class="reason-num">14</div><p>You turn moments into memories.</p></div>
+      <div class="reason reveal"><div class="reason-num">15</div><p>You make “family” feel chosen.</p></div>
+      <div class="reason reveal"><div class="reason-num">16</div><p>You can be wonderfully dramatic.</p></div>
+      <div class="reason reveal"><div class="reason-num">17</div><p>You are always worth celebrating.</p></div>
+      <div class="reason reveal"><div class="reason-num">18</div><p>You have a beautiful heart.</p></div>
+      <div class="reason reveal"><div class="reason-num">19</div><p>You make people smile without trying.</p></div>
+      <div class="reason reveal"><div class="reason-num">20</div><p>You are one of the good ones.</p></div>
+      <div class="reason reveal"><div class="reason-num">21</div><p>You make “remember when…” fun.</p></div>
+      <div class="reason reveal"><div class="reason-num">22</div><p>You deserve your happiest chapter yet.</p></div>
+      <div class="reason reveal"><div class="reason-num">23</div><p>You are loved more than you know.</p></div>
+      <div class="reason reveal"><div class="reason-num">24</div><p>You are wonderfully, completely Prachi.</p></div>
+      <div class="reason reveal"><div class="reason-num">25</div><p>Because life is better with you in it. ❤️</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="countdown">
+  <div class="container reveal">
+    <div class="section-kicker">The date is getting closer</div>
+    <h2 class="countdown-title">Chapter 25 begins in…</h2>
+    <div class="timer" id="timer">
+      <div class="timebox"><strong id="days">00</strong><span>Days</span></div>
+      <div class="timebox"><strong id="hours">00</strong><span>Hours</span></div>
+      <div class="timebox"><strong id="minutes">00</strong><span>Minutes</span></div>
+      <div class="timebox"><strong id="seconds">00</strong><span>Seconds</span></div>
+    </div>
+    <div class="after-date" id="afterDate">Today, we celebrate you. 🎂✨</div>
+  </div>
+</section>
+
+<section class="wishes">
+  <div class="container wishes-grid">
+    <div class="reveal">
+      <div class="section-kicker">For your next chapter</div>
+      <h2 class="section-title">May 25<br>be kind to you.</h2>
+      <ul class="wish-list">
+        <li>More reasons to laugh until your stomach hurts.</li>
+        <li>People who choose you, every single time.</li>
+        <li>Courage for the dreams you haven't said out loud yet.</li>
+        <li>Peace in the places that once felt uncertain.</li>
+        <li>Adventures you'll someday call “the good old days.”</li>
+      </ul>
+    </div>
+    <div class="stamp reveal">
+      <div class="stamp-text"><b>25</b><small>years of being<br>uniquely you</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="container reveal">
+    <div class="section-kicker">One last thing</div>
+    <h2><span>Happy 25th Birthday</span>Prachi</h2>
+    <p>Some memories fade with time. Some become stories. And some people become the memories we know we'll always want to keep.</p>
+    <div class="final-sign">Here's to you, to us, and to all the memories still waiting to happen. <span class="heart">♥</span></div>
+  </div>
+</section>
+</main>
+
+<script>
+window.addEventListener("load",()=>{
+  setTimeout(()=>{
+    document.getElementById("loader").classList.add("hide");
+    document.body.classList.remove("locked");
+    document.querySelector(".hero .reveal").classList.add("show");
+  },850);
+});
+
+const progress=document.getElementById("progress");
+window.addEventListener("scroll",()=>{
+  const h=document.documentElement.scrollHeight-innerHeight;
+  progress.style.width=(h>0?(scrollY/h)*100:0)+"%";
+});
+
+const reveals=[...document.querySelectorAll(".reveal")];
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("show")});
+},{threshold:.12});
+reveals.forEach(el=>observer.observe(el));
+
+const target=new Date("2026-09-19T00:00:00");
+function updateTimer(){
+  const now=new Date(), diff=target-now;
+  if(diff<=0){
+    ["days","hours","minutes","seconds"].forEach(id=>document.getElementById(id).textContent="00");
+    document.getElementById("afterDate").style.display="block";
+    return;
+  }
+  const d=Math.floor(diff/86400000), h=Math.floor(diff/3600000)%24,
+        m=Math.floor(diff/60000)%60, s=Math.floor(diff/1000)%60;
+  document.getElementById("days").textContent=String(d).padStart(2,"0");
+  document.getElementById("hours").textContent=String(h).padStart(2,"0");
+  document.getElementById("minutes").textContent=String(m).padStart(2,"0");
+  document.getElementById("seconds").textContent=String(s).padStart(2,"0");
+}
+updateTimer(); setInterval(updateTimer,1000);
+
+function petals(){
+  const wrap=document.getElementById("floating");
+  for(let i=0;i<18;i++){
+    setTimeout(()=>{
+      const p=document.createElement("div");
+      p.className="petal";
+      p.textContent=Math.random()>.45?"✦":"♡";
+      p.style.left=Math.random()*100+"vw";
+      p.style.setProperty("--x",(Math.random()*220-110)+"px");
+      p.style.animationDuration=(5+Math.random()*5)+"s";
+      p.style.fontSize=(10+Math.random()*13)+"px";
+      wrap.appendChild(p);
+      setTimeout(()=>p.remove(),11000);
+    },i*170);
+  }
+}
+setTimeout(petals,1300);
+setInterval(petals,12000);
+</script>
+</body>
+</html>
+  
